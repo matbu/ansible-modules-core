@@ -58,7 +58,7 @@ def _create_stack(module, stack, cloud):
         stack = cloud.create_stack(module.params['stack_name'],
                                    template_file=module.params['template'],
                                    files=module.params['environment_files'],
-                                   timeout=module.params['tiemout'],
+                                   timeout=module.params['timeout'],
                                    wait=True)
 
         stack = cloud.get_stack(stack['stack']['id'], None)
