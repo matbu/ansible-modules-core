@@ -10,7 +10,7 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: os_heat_stack
+module: os_stack
 short_description: Add/Remove Heat Stack
 extends_documentation_fragment: openstack
 version_added: "2.0"
@@ -24,7 +24,7 @@ options:
      choices: ['present', 'absent']
      required: false
      default: present
-   stack_name:
+   name:
      description:
         - Name of the stack that should be created
      required: true
@@ -55,7 +55,7 @@ EXAMPLES = '''
 
 def _create_stack(module, stack, cloud):
     try:
-        stack = cloud.create_stack(module.params['stack_name'],
+        stack = cloud.create_stack(module.params['name'],
                                    template_file=module.params['template'],
                                    files=module.params['environment_files'],
                                    timeout=module.params['timeout'],
@@ -81,7 +81,7 @@ def _system_state_change(module, stack, cloud):
 def main():
 
     argument_spec = openstack_full_argument_spec(
-        stack_name=dict(required=True),
+        name=dict(required=True),
         template=dict(default=None),
         environment_files=dict(default=None, type='dict'),
         timeout=dict(default=180),
@@ -97,7 +97,7 @@ def main():
         module.fail_json(msg='shade is required for this module')
 
     state = module.params['state']
-    stack_name = module.params['stack_name']
+    name = module.params['name']
     template = module.params['template']
     environment_files = module.params['environment_files']
 
@@ -109,7 +109,7 @@ def main():
 
     try:
         cloud = shade.openstack_cloud(**module.params)
-        stack = cloud.get_stack(stack_name)
+        stack = cloud.get_stack(name)
 
         if state == 'present':
             if not stack:
@@ -125,8 +125,8 @@ def main():
                 changed = False
             else:
                 changed = True
-                if not cloud.delete_stack(stack_name):
-                    module.fail_json(msg='delete stack failed for stack: %s' % stack_name)
+                if not cloud.delete_stack(name):
+                    module.fail_json(msg='delete stack failed for stack: %s' % name)
             module.exit_json(changed=changed)
 
     except shade.OpenStackCloudException as e:
